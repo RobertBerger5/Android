@@ -23,7 +23,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements RecognitionListener{
     public SpeechRecognizer sr;
     public TextView text;
-    public Button button;
+    //public Button button;
+    public TextView errors;
     public boolean listening=false;
     public ArrayList<String> goodShit;
 
@@ -39,7 +40,11 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         sr=SpeechRecognizer.createSpeechRecognizer(this);
         sr.setRecognitionListener(this);//aha I AM the listener now!
 
-        button=(Button) findViewById(R.id.voice);
+        //startListening();
+
+
+        errors=(TextView) findViewById(R.id.textErrors);
+
         //text.setText("nipples");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener(){
@@ -48,9 +53,10 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
                 text.setText("end me");
                 Snackbar.make(view, "how does this work please help", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
+                startListening();
             }
         });
-        button.setOnClickListener(new View.OnClickListener() {
+        /*button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(listening){
@@ -63,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
                     startListening();
                 }
             }
-        });
+        });*/
     }
 
     @Override
@@ -89,29 +95,38 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         return super.onOptionsItemSelected(item);
     }
 
+    public void error(String text){
+        errors.append(text+"\n");
+    }
+
     @Override
     public void onReadyForSpeech(Bundle params) {
         System.out.println("ready captain");
+        error("onReadyForSpeech");
     }
 
     @Override
     public void onBeginningOfSpeech() {
         System.out.println("started talkin");
+        error("onBeginningOfSpeech");
     }
 
     @Override
     public void onRmsChanged(float rmsdB) {
         System.out.println("new dB value: "+rmsdB);
+        //error("RMS changed to "+rmsdB);
     }
 
     @Override
     public void onBufferReceived(byte[] buffer) {
         System.out.println("got a buffer...");
+        error("onBufferReceived");
     }
 
     @Override
     public void onEndOfSpeech() {
         System.out.println("done talkin");
+        error("onEndOfSpeech");
     }
 
     @Override
@@ -134,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         sr.stopListening();
         listening=false;
         System.out.println("stopped listening");
-        button.setText("Start Listening");
+        //button.setText("Start Listening");
     }
 
     @Override
@@ -143,15 +158,20 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         System.out.println("GOOD SHIT COMIN IN HOT BOYS WATCH TF OUT");
         System.out.println(goodShit.get(0));
         text.setText(goodShit.get(0));
+        error("YOU JUST SAID: "+goodShit);
         //TODO: Jason just said "wait" in a different conversation
         //it accepted it without me hitting "stop listening"
         //when I hit stop listening, it said error 5 because it had already stopped...
         //onPartialResults() or onEndOfSpeech() ??? hmmm
+
+        startListening();
     }
 
     @Override
     public void onPartialResults(Bundle partialResults) {
         System.out.println("partial results...?");
+        goodShit=(ArrayList<String>)partialResults.get(sr.RESULTS_RECOGNITION);
+        error("partial results are in: "+goodShit);
     }
 
     @Override
@@ -165,12 +185,14 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         sr.startListening(speechIntent);
         listening=true;
         System.out.println("started listening");
-        button.setText("Stop Listening");
+        //button.setText("Stop Listening");
+        error("started listening");
     }
     public void stopListening(){
         sr.stopListening();
         listening=false;
         System.out.println("stopped listening");
-        button.setText("Start Listening");
+        //button.setText("Start Listening");
+        error("stopped listening");
     }
 }
