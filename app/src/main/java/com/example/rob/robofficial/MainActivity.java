@@ -13,10 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.TextView;
-
-import com.example.rob.robofficial.R;
 
 import java.util.ArrayList;
 
@@ -26,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     //public Button button;
     public TextView errors;
     public boolean listening=false;
-    public ArrayList<String> goodShit;
+    public ArrayList<String> result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         text=(TextView) findViewById(R.id.textMain);
 
         sr=SpeechRecognizer.createSpeechRecognizer(this);
-        sr.setRecognitionListener(this);//aha I AM the listener now!
+        sr.setRecognitionListener(this);//this activity is the listener
 
         //startListening();
 
@@ -53,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
                 text.setText("end me");
                 Snackbar.make(view, "how does this work please help", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
-                startListening();
+                startListening();//just set the activity for the little email button to do it for now...
             }
         });
         /*button.setOnClickListener(new View.OnClickListener() {
@@ -154,24 +151,23 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onResults(Bundle results) {
-        goodShit=(ArrayList<String>)results.get(sr.RESULTS_RECOGNITION);
+        result =(ArrayList<String>)results.get(sr.RESULTS_RECOGNITION);
         System.out.println("GOOD SHIT COMIN IN HOT BOYS WATCH TF OUT");
-        System.out.println(goodShit.get(0));
-        text.setText(goodShit.get(0));
-        error("YOU JUST SAID: "+goodShit);
-        //TODO: Jason just said "wait" in a different conversation
+        System.out.println(result.get(0));
+        text.setText(result.get(0));//Main one, the one it's most confident about...
+        error("YOU JUST SAID: "+ result);
         //it accepted it without me hitting "stop listening"
         //when I hit stop listening, it said error 5 because it had already stopped...
         //onPartialResults() or onEndOfSpeech() ??? hmmm
 
-        startListening();
+        //startListening();
     }
 
     @Override
     public void onPartialResults(Bundle partialResults) {
         System.out.println("partial results...?");
-        goodShit=(ArrayList<String>)partialResults.get(sr.RESULTS_RECOGNITION);
-        error("partial results are in: "+goodShit);
+        result =(ArrayList<String>)partialResults.get(sr.RESULTS_RECOGNITION);
+        error("partial results are in: "+ result);
     }
 
     @Override
@@ -187,12 +183,5 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         System.out.println("started listening");
         //button.setText("Stop Listening");
         error("started listening");
-    }
-    public void stopListening(){
-        sr.stopListening();
-        listening=false;
-        System.out.println("stopped listening");
-        //button.setText("Start Listening");
-        error("stopped listening");
     }
 }
